@@ -22,7 +22,7 @@ def main():
 
 def show_form():
     image = Image.open("dengue.png")
-    st.image(image, caption="Aedes mosquito", use_column_width=True)
+    st.image(image, caption="", use_column_width=True)
     st.header("Input the given fields or upload a csv file which has the given input fields as columns:")
     with st.form(key="my_form"):
         input_fields = []
