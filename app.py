@@ -21,13 +21,14 @@ def main():
         show_result()
 
 def show_form():
-    st.header("Input the given fields:")
     image = Image.open("dengue.png")
     st.image(image, caption="Aedes mosquito", use_column_width=True)
+    st.header("Input the given fields or upload a csv file which has the given input fields as columns:")
     with st.form(key="my_form"):
         input_fields = []
-        for i in range(12):
-            input_field = st.text_input(f"Input {i+1}")
+        input_field_names = ["Rainfall", "Humidity"]
+        for i in input_field_names:
+            input_field = st.text_input(f"{i}")
             input_fields.append(input_field)
 
         csv_upload = st.file_uploader("Upload a CSV file")
