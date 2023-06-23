@@ -26,7 +26,15 @@ def show_form():
     st.header("Input the given fields or upload a csv file which has the given input fields as columns:")
     with st.form(key="my_form"):
         input_fields = []
-        input_field_names = ["AI", "AI 2ND LAST MONTH", "BI", "BI 2ND LAST MONTH", "CI", "CI 2ND LAST MONTH", "HI", "HI 2ND LAST MONTH", "HUMIDITY MEAN 2ND LAST MONTH", "HUMIDITY MEAN LAST MONTH", "HUMIDITY STD 2ND LAST MONTH", "HUMIDITY STD LAST MONTH",  "LAST MONTH CASES"]
+        input_field_names = ['Rainfall_mean_last_month', 'Humidity_mean_last_month',
+       'Rainfall_mean_2nd_last_month', 'Humidity_mean_2nd_last_month',
+       'Rainfall_std_last_month', 'Rainfall_std_2nd_last_month',
+       'Humidity_std_last_month', 'Humidity_std_2nd_last_month',
+       'Rainfall_sum_last_month', 'Rainfall_sum_2nd_last_month',
+       'Rainfall_function', 'temp', 'Year', 'Month', 'LI', 'AI', 'BI', 'CI',
+       'HI', 'PI', 'LI_2nd_last_month', 'AI_2nd_last_month',
+       'BI_2nd_last_month', 'CI_2nd_last_month', 'HI_2nd_last_month',
+       'PI_2nd_last_month', 'Season', 'last_month_cases']
         for i in input_field_names:
             input_field = st.text_input(f"{i}")
             input_fields.append(input_field)
