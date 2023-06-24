@@ -54,9 +54,21 @@ def show_form():
        'HI', 'PI', 'LI_2nd_last_month', 'AI_2nd_last_month',
        'BI_2nd_last_month', 'CI_2nd_last_month', 'HI_2nd_last_month',
        'PI_2nd_last_month', 'season', 'last_month_cases']
-        for i in input_field_names:
-            input_field = st.text_input(f"{i}")
+       
+        input_field_real_names = ['Rainfall Mean of Last Month', 'Humidity Mean of Last Month',
+        'Rainfall Mean of Second Last Month', 'Humidity Mean of Second Last Month',
+        'Rainfall Standard of Last Month', 'Rainfall Standard of Second Last Month',
+        'Humidity Standard of Last Month', 'Humidity Standard of Second Last Month',
+        'Total Rainfall Sum of Last Month', 'Total Rainfall Sum of Second Last Month',
+        'Rainfall Function', 'Temperature(mid/high/low)', 'Year', 'Current Month', 'Larvae Pupae Infestation', 'Aedes Infestation', 'Breteau Index', 'Container Index',
+        'House Index', 'Premise Index', 'Larvae Pupae Infestation of Second Last Month', 'Aedes Infestation of Second Last Month',
+        'Breteau Index of Second Last Month', 'Container Index of Second Last Month', 'House Index of Second Last Month',
+        'Premise Index of Second Last Month', 'Season', 'Number of cases on the last month']
+        ixx = 0
+        for i in input_field_real_names:
+            input_field = st.text_input((f"{i}")+(" (")+(f"{input_field_names[ixx]}")+(")"))
             input_fields.append(input_field)
+            ixx=ixx+1
 
         csv_upload = st.file_uploader("Upload a CSV file")
         
@@ -137,7 +149,7 @@ def show_result():
     
     result = st.session_state.get("result", 0)
     
-    st.write(("There will be ")+(f"{result}")+(" cases next month !"))
+    st.write(("There will be ")+(f"{result}")+(" cases next month in Dhaka!"))
 
     # Additional styles and designs
     st.markdown(
