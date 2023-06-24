@@ -4,6 +4,19 @@ import streamlit.components.v1 as components
 import folium
 from streamlit_folium import folium_static
 import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+import pickle
+
+# Load the pre-trained model and scaler from the .pkl files
+with open('dengue_vision_trained_model.pkl', 'rb') as file:
+    model = pickle.load(file)
+
+with open('dengue_vision_normalized_model.pkl', 'rb') as file:
+    scaler = pickle.load(file)
+
+with open('dengue_vision_label_encoder.pkl', 'rb') as file:
+    lbl_enc = pickle.load(file)
 
 def main():
     st.set_page_config(
@@ -43,13 +56,6 @@ def show_form():
         
         submit_button = st.form_submit_button("Submit")
 
-        if submit_button:
-            # Perform any necessary processing with the form data
-            # You can access the input values using the input_fields list
-
-            # Redirect to the result page after form submission
-            st.experimental_set_query_params(page="Result")
-            
         if csv_upload is not None:
             # Read the uploaded CSV file
             df = pd.read_csv(csv_upload)
@@ -58,10 +64,38 @@ def show_form():
 
             # Redirect to the result page after file upload
             st.experimental_set_query_params(page="Result")
+        
+        if submit_button:
+            # Perform any necessary processing with the form data
+            # You can access the input values using the input_fields list
+            inputs = [[]]
+            temp_inputs = []
+            ix = 0
+            print(lbl_enc.classes_)
+            for i in input_field_names:
+                if i=='temp' or i=='Month' or i=='Season':
+                    temp_arr = [input_fields[ix]]
+                    temp_arr2 = lbl_enc.transform(temp_arr)
+                    temp_inputs.append(temp_arr2[0])
+                else:
+                    temp_inputs.append(input_fields[ix])
+                ix=ix+1
+            norm_inputs = scaler.transform(temp_inputs)
+            inputs.append(norm_inputs)
+            ret = model.predict(inputs)
+            print(ret[0])
+            st.session_state.result = ret[0]
+            # Set the current page to "Result"
+            st.session_state.page = "Result"
+            # Redirect to the result page after form submission
+            #st.experimental_set_query_params(page="Result")
 
 def show_result():
     st.header("Dengue Prediction Result:")
-    st.write("The result is <insert prediction results here>")
+    
+    result = st.session_state.get("result", 0)
+    
+    st.write(("The result is: ")+(f"{result}"))
 
     # Additional styles and designs
     st.markdown(
