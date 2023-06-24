@@ -78,7 +78,8 @@ def show_form():
             inputs = [[]]
             if csv_upload is not None:
                 # Read the uploaded CSV file
-                df = pd.read_csv(csv_upload)
+                dfAll = pd.read_csv(csv_upload)
+                df = dfAll.iloc[0]
                 # Perform processing with the uploaded data
                 # You can access the data using the 'df' DataFrame
 
