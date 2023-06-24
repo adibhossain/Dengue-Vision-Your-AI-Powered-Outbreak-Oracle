@@ -15,8 +15,14 @@ with open('dengue_vision_trained_model.pkl', 'rb') as file:
 with open('dengue_vision_normalized_model.pkl', 'rb') as file:
     scaler = pickle.load(file)
 
-with open('dengue_vision_label_encoder.pkl', 'rb') as file:
+with open('temp.pkl', 'rb') as file:
     lbl_enc = pickle.load(file)
+    
+with open('month.pkl', 'rb') as file:
+    lbl_encm = pickle.load(file)
+
+with open('season.pkl', 'rb') as file:
+    lbl_encs = pickle.load(file)
 
 def main():
     st.set_page_config(
@@ -44,10 +50,10 @@ def show_form():
        'Rainfall_std_last_month', 'Rainfall_std_2nd_last_month',
        'Humidity_std_last_month', 'Humidity_std_2nd_last_month',
        'Rainfall_sum_last_month', 'Rainfall_sum_2nd_last_month',
-       'Rainfall_function', 'temp', 'Year', 'Month', 'LI', 'AI', 'BI', 'CI',
+       'Rainfall_function', 'temp', 'Year', 'month', 'LI', 'AI', 'BI', 'CI',
        'HI', 'PI', 'LI_2nd_last_month', 'AI_2nd_last_month',
        'BI_2nd_last_month', 'CI_2nd_last_month', 'HI_2nd_last_month',
-       'PI_2nd_last_month', 'Season', 'last_month_cases']
+       'PI_2nd_last_month', 'season', 'last_month_cases']
         for i in input_field_names:
             input_field = st.text_input(f"{i}")
             input_fields.append(input_field)
@@ -55,47 +61,83 @@ def show_form():
         csv_upload = st.file_uploader("Upload a CSV file")
         
         submit_button = st.form_submit_button("Submit")
-
-        if csv_upload is not None:
-            # Read the uploaded CSV file
-            df = pd.read_csv(csv_upload)
-            # Perform processing with the uploaded data
-            # You can access the data using the 'df' DataFrame
-
-            # Redirect to the result page after file upload
-            st.experimental_set_query_params(page="Result")
         
         if submit_button:
-            # Perform any necessary processing with the form data
-            # You can access the input values using the input_fields list
             inputs = [[]]
-            temp_inputs = []
-            ix = 0
-            print(lbl_enc.classes_)
-            for i in input_field_names:
-                if i=='temp' or i=='Month' or i=='Season':
-                    temp_arr = [input_fields[ix]]
-                    temp_arr2 = lbl_enc.transform(temp_arr)
-                    temp_inputs.append(temp_arr2[0])
-                else:
-                    temp_inputs.append(input_fields[ix])
-                ix=ix+1
-            norm_inputs = scaler.transform(temp_inputs)
-            inputs.append(norm_inputs)
-            ret = model.predict(inputs)
+            if csv_upload is not None:
+                # Read the uploaded CSV file
+                df = pd.read_csv(csv_upload)
+                # Perform processing with the uploaded data
+                # You can access the data using the 'df' DataFrame
+
+                # Redirect to the result page after file upload
+                # st.experimental_set_query_params(page="Result")
+                # Perform any necessary processing with the form data
+                # You can access the input values using the input_fields list
+                temp_inputs = []
+                ix = 0
+                print(lbl_enc.classes_)
+                print(lbl_encm.classes_)
+                print(lbl_encs.classes_)
+                for i in input_field_names:
+                    if i=='temp':
+                        temp_arr = [df[i]]
+                        temp_arr2 = lbl_enc.transform(temp_arr)
+                        temp_inputs.append(temp_arr2[0])
+                    elif i=='month':
+                        temp_arr = [df[i]]
+                        temp_arr2 = lbl_encm.transform(temp_arr)
+                        temp_inputs.append(temp_arr2[0])
+                    elif i=='season':
+                        temp_arr = [df[i]]
+                        temp_arr2 = lbl_encs.transform(temp_arr)
+                        temp_inputs.append(temp_arr2[0])
+                    else:
+                        temp_inputs.append(df[i])
+                    ix=ix+1
+            else:
+                # Perform any necessary processing with the form data
+                # You can access the input values using the input_fields list
+                temp_inputs = []
+                ix = 0
+                print(lbl_enc.classes_)
+                print(lbl_encm.classes_)
+                print(lbl_encs.classes_)
+                for i in input_field_names:
+                    if i=='temp':
+                        temp_arr = [input_fields[ix]]
+                        temp_arr2 = lbl_enc.transform(temp_arr)
+                        temp_inputs.append(temp_arr2[0])
+                    elif i=='month':
+                        temp_arr = [input_fields[ix]]
+                        temp_arr2 = lbl_encm.transform(temp_arr)
+                        temp_inputs.append(temp_arr2[0])
+                    elif i=='season':
+                        temp_arr = [input_fields[ix]]
+                        temp_arr2 = lbl_encs.transform(temp_arr)
+                        temp_inputs.append(temp_arr2[0])
+                    else:
+                        temp_inputs.append(input_fields[ix])
+                    ix=ix+1
+            inputs[0] = (temp_inputs)
+            print(inputs)
+            print(len(inputs))
+            norm_inputs = scaler.transform(inputs)
+            ret = model.predict(norm_inputs)
             print(ret[0])
             st.session_state.result = ret[0]
             # Set the current page to "Result"
             st.session_state.page = "Result"
             # Redirect to the result page after form submission
             #st.experimental_set_query_params(page="Result")
+            show_result()
 
 def show_result():
     st.header("Dengue Prediction Result:")
     
     result = st.session_state.get("result", 0)
     
-    st.write(("The result is: ")+(f"{result}"))
+    st.write(("There will be ")+(f"{result}")+(" cases next month !"))
 
     # Additional styles and designs
     st.markdown(
@@ -135,13 +177,12 @@ def show_result():
         """,
         unsafe_allow_html=True,
     )
-    st.markdown("<p>This is some additional styled text.</p>", unsafe_allow_html=True)
     
     m = folium.Map(location=[23.6850, 90.3563], zoom_start=7)
 
     # Add markers for the cities with numbers on them
     cities = ['Dhaka', 'Chittagong', 'Rajshahi']
-    numbers = [10, 5, 8]
+    numbers = [result, 0, 0]
     for city, number in zip(cities, numbers):
         marker = folium.Marker(
             location=get_coordinates(city),
